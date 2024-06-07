@@ -1,0 +1,5 @@
+Django==4.2.11
+
+pymemgpt==0.3.8
+python-telegram-bot[rate-limiter]==20.7
+psycopg2-binary==2.9.7

@@ -1,0 +1,54 @@
+version: "1"   
+services:
+
+  bot-dev:
+    container_name: bot-dev
+    image: ai-tg-bot
+    build:
+      context: .
+      ssh:
+        - default
+    restart: unless-stopped
+    platform: linux/amd64
+    entrypoint: python manage.py run_bot
+    volumes:
+      - .:/appuser/code
+    working_dir: /appuser/code
+    env_file:
+      - .env
+
+  bot:
+    container_name: bot
+    image: ai-tg-bot
+    entrypoint: python manage.py run_bot
+    restart: unless-stopped
+    platform: linux/amd64
+    volumes:
+    - .:/appuser/code
+    working_dir: /appuser/code
+    env_file:
+      - .env
+
+  bot-postgres:
+    image: postgres:16
+    container_name: bot-postgres
+    volumes:
+      - bot-pgdb:/var/lib/postgresql/data
+    env_file: .env
+    ports:
+      - 5432:5432
+
+  bot-dbmigrate:
+    container_name: bot-dbmigrate
+    image: ai-tg-bot
+    platform: linux/amd64
+    entrypoint: python manage.py migrate
+    restart: "no"
+    env_file:
+      - .env
+    depends_on:
+      - bot-postgres
+
+volumes:
+    bot-pgdb:
+      external: true
